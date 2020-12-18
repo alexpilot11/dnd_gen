@@ -12,6 +12,7 @@ def gen_name():
 
 
 def gen_size():
+    # TODO: make different percentages for planet sizes
     sizes = [
         'Small',
         'Medium',
@@ -50,6 +51,7 @@ def gen_plane():
 
 
 def gen_gen_population():
+    # TODO: make different percentages for population sizes
     if random.randint(1, 10) > 3:
         return f'{"Population:":<20}None'
 
@@ -113,6 +115,7 @@ def gen_economy():
 
 
 def main(num):
+    # TODO: make should some planets have multiple "planets" inside of them?
     for i in range(num):
         print('-----------------------------------------')
         print(gen_name())
