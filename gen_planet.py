@@ -131,7 +131,7 @@ class Planet:
             '-----------------------------------------'
         ]
 
-        return '\n'.join(fields)
+        return '\n'.join(lines)
 
 
 def parse_args():
