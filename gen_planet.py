@@ -105,6 +105,7 @@ def gen_economy():
     economy = [
         'Raw materials',
         'Merchant',
+        'Crime',
         'None',
     ]
     choice = random.choice(economy)
