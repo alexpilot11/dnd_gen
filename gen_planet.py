@@ -112,6 +112,28 @@ def gen_economy():
     return f'{"Economy:":<20}{choice}'
 
 
+class Planet:
+    """Collection of planet attributes"""
+
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        lines = [
+            '-----------------------------------------',
+            gen_name(),
+            gen_size(),
+            gen_plane(),
+            gen_gen_population(),
+            gen_conflict(),
+            gen_raw_materials(),
+            gen_economy(),
+            '-----------------------------------------'
+        ]
+
+        return '\n'.join(fields)
+
+
 def main(num):
     # TODO: make should some planets have multiple "planets" inside of them?
     for i in range(num):
