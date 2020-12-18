@@ -126,4 +126,10 @@ def main(num):
 
 
 if __name__ == '__main__':
-    main(int(sys.argv[1]))
+    if len(sys.argv) < 2:
+        num = 5
+    elif len(sys.argv) == 2:
+        num = int(sys.argv[1])
+    else:
+        raise Exception('too many args')
+    main(num)
