@@ -76,7 +76,7 @@ def gen_conflict():
         'Crime - gangs',
         'Crime - slavery',
         'Crime - domestic abuse',
-        'Politial power struggle',
+        'Political power struggle',
     ]
     choice = random.choice(conflict_types)
     return f'{"Conflict:":<20}{choice}'
