@@ -1,14 +1,12 @@
 import random
 import requests
 import sys
+from majormode.utils.namegen import NameGeneratorFactory
 
 
 def gen_name():
-    url = 'https://donjon.bin.sh/name/rpc-name.fcgi?type=Human+Male&n=10'
-    resp = requests.get(url)
-    names = resp.text.split('\n')
-    choice = random.choice(names)
-    return f'{"Name:":<20}{choice}'
+    name_generator = NameGeneratorFactory.get_instance(NameGeneratorFactory.Language.Greek)
+    return name_generator.generate_name()
 
 
 def gen_size():
