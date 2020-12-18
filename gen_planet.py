@@ -134,25 +134,23 @@ class Planet:
         return '\n'.join(fields)
 
 
-def main(num):
+def parse_args():
+    if len(sys.argv) < 2:
+        planet_count = 5
+    elif len(sys.argv) == 2:
+        planet_count = int(sys.argv[1])
+    else:
+        raise Exception('too many args')
+
+    return planet_count
+
+
+def main(planet_count):
     # TODO: make should some planets have multiple "planets" inside of them?
-    for i in range(num):
-        print('-----------------------------------------')
-        print(gen_name())
-        print(gen_size())
-        print(gen_plane())
-        print(gen_gen_population())
-        print(gen_conflict())
-        print(gen_raw_materials())
-        print(gen_economy())
-        print('-----------------------------------------')
+    for i in range(planet_count):
+        new_planet = Planet()
+        print(new_planet)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2:
-        num = 5
-    elif len(sys.argv) == 2:
-        num = int(sys.argv[1])
-    else:
-        raise Exception('too many args')
-    main(num)
+    main(parse_args())
