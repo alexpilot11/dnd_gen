@@ -1,59 +1,73 @@
 import random
 import sys
-from abc import ABCMeta, abstractmethod
 from majormode.utils.namegen import NameGeneratorFactory
 
 
-class PlanetAttribute(metaclass=ABCMeta):
-    string_padding = 20
+class PlanetAttribute:
+    """Planet quality/attribute helper class"""
 
-    @property
-    @abstractmethod
-    def attribute_name(self):
-        pass
+    delimiter = '\n'
+    indent = 4
 
-    def __init__(self):
-        self.name = self.attribute_name
-        self.value = self.generate()
+    def __init__(self, value):
+        self.value = value
 
     def __str__(self):
-        return f'{self.name+":":<{self.string_padding}}{self.value}'
+        return self.value
 
     @classmethod
-    @abstractmethod
-    def generate(cls):
-        pass
+    def format_attributes(cls, name, value, alignment=20, indent=0):
+        """Pretty print attributes"""
+
+        if isinstance(value, dict):
+            return cls._format_dict(name, value, alignment, indent)
+        else:
+            return cls._format_attribute(name, value, alignment, indent)
+
+    @classmethod
+    def _format_dict(cls, name, values, alignment=20, indent=0):
+        output = [f'{"":<{indent}}{name}']
+        for k, v in values.items():
+            output.append(
+                cls.format_attributes(k, v, alignment + cls.indent, indent + cls.indent)
+            )
+        return cls.delimiter.join(output)
+
+    @classmethod
+    def _format_attribute(cls, name, value, alignment=20, indent=0):
+        return f'{"":<{indent}}{name + ":":<{alignment}}{value}'
 
 
 class PlanetName(PlanetAttribute):
-    attribute_name = 'Name'
-    _generate_planet_name = NameGeneratorFactory.get_instance(NameGeneratorFactory.Language.Greek).generate_name
+    """Planet name generator"""
 
-    @classmethod
-    def generate(cls):
-        return cls._generate_planet_name()
+    _generate = NameGeneratorFactory.get_instance(NameGeneratorFactory.Language.Greek).generate_name
+    max_length = 3
+
+    def __init__(self):
+        word_count = random.choice([1]*6 + [2]*3 + [3])  # Shorter names have higher weights
+        super().__init__(' '.join([self._generate() for _ in range(word_count)]))
 
 
 class PlanetSize(PlanetAttribute):
-    attribute_name = 'Size'
+    """Planet size generator"""
 
     # TODO: make different percentages for planet sizes
-    planet_sizes = [
+    PLANET_SIZES = (
         'Small',
         'Medium',
         'Large',
         'Huge',
         'Giant',
-    ]
+    )
 
-    @classmethod
-    def generate(cls):
-        return random.choice(cls.planet_sizes)
+    def __init__(self):
+        super().__init__(random.choice(self.PLANET_SIZES))
 
 
 class PlanetPlane(PlanetAttribute):
-    attribute_name = 'Plane'
-    planes = [
+    """Planet (dnd dimensional) plane generator"""
+    PLANES = (
         'Material',
         'Feywild',
         'Shadowfell',
@@ -73,35 +87,36 @@ class PlanetPlane(PlanetAttribute):
         'The Beastlands',
         'Arborea',
         'Ysgard',
-    ]
+    )
 
-    @classmethod
-    def generate(cls):
-        return random.choice(cls.planes)
+    def __init__(self):
+        super().__init__(random.choice(self.PLANES))
 
 
 class PlanetPopulation(PlanetAttribute):
-    attribute_name = 'Population'
+    """Planet population generator"""
+
     # TODO: make different percentages for population sizes
-    population_sizes = [
+    POPULATION_SIZES = (
         'Small',
         'Medium',
         'Large',
         'Huge',
         'Giant',
-    ]
+    )
 
-    @classmethod
-    def generate(cls):
-        if random.randint(1, 10) > 3:
-            return '<20'
-        else:
-            return random.choice(cls.population_sizes)
+    def __init__(self):
+        planet_size = '<20'
+        if random.randint(1, 10) <= 3:
+            planet_size = random.choice(self.POPULATION_SIZES)
+
+        super().__init__(planet_size)
 
 
 class PlanetConflict(PlanetAttribute):
-    attribute_name = 'Conflict'
-    conflict_types = [
+    """Planet conflict generator"""
+
+    CONFLICT_TYPES = (
         'War',
         'Political land boundaries',
         'Citizen land boundaries',
@@ -110,19 +125,20 @@ class PlanetConflict(PlanetAttribute):
         'Crime - slavery',
         'Crime - domestic abuse',
         'Political power struggle',
-    ]
+    )
 
-    @classmethod
-    def generate(cls):
-        if random.randint(1, 10) > 5:
-            return 'None'
-        else:
-            return random.choice(cls.conflict_types)
+    def __init__(self):
+        conflict = 'None'
+        if random.randint(1, 10) <= 5:
+            conflict = random.choice(self.CONFLICT_TYPES)
+
+        super().__init__(conflict)
 
 
 class PlanetRawMaterials(PlanetAttribute):
-    attribute_name = 'Raw Materials'
-    raw_materials = [
+    """Planet resources generator"""
+
+    RAW_MATERIALS = (
         'Precious metal ore',
         'Precious gems',
         'Useful metal ore',
@@ -132,52 +148,62 @@ class PlanetRawMaterials(PlanetAttribute):
         'Gas - medical',
         'Fuel - gas',
         'Fuel - coal-like',
-    ]
+    )
 
-    @classmethod
-    def generate(cls):
-        if random.randint(1, 10) > 8:
-            return 'None'
-        else:
-            return random.choice(cls.raw_materials)
+    def __init__(self):
+        raw_materials = 'None'
+        if random.randint(1, 10) <= 8:
+            raw_materials = random.choice(self.RAW_MATERIALS)
+
+        super().__init__(raw_materials)
 
 
 class PlanetEconomy(PlanetAttribute):
-    attribute_name = 'Economy'
-    economy = [
+    """Planet economy generator"""
+
+    ECONOMIES = (
         'Raw materials',
         'Merchant',
         'Black market',
         'None',
-    ]
+    )
 
-    @classmethod
-    def generate(cls):
-        return random.choice(cls.economy)
+    def __init__(self):
+        super().__init__(random.choice(self.ECONOMIES))
 
 
 class Planet:
     """Collection of planet attributes"""
 
     def __init__(self):
-        self.name = PlanetName()
-        self.size = PlanetSize()
-        self.plane = PlanetPlane()
-        self.population = PlanetPopulation()
-        self.conflict = PlanetConflict()
-        self.raw_materials = PlanetRawMaterials()
-        self.economy = PlanetEconomy()
+        # TODO: make should some planets have multiple "planets" inside of them?
+
+        self.attributes = {
+            'Name': PlanetName(),
+            'Size': PlanetSize(),
+            'Plane': PlanetPlane(),
+            'Population': PlanetPopulation(),
+            'Conflict': PlanetConflict(),
+            'Raw Materials': PlanetRawMaterials(),
+            'Economy': PlanetEconomy(),
+        }
 
     def __str__(self):
-        return '\n'.join([
-            str(self.name),
-            str(self.size),
-            str(self.plane),
-            str(self.population),
-            str(self.conflict),
-            str(self.raw_materials),
-            str(self.economy),
-        ])
+        return PlanetAttribute.format_attributes('Planet', self.attributes)
+
+
+class SolarSystem:
+    """Collection of planets"""
+
+    delimiter = f'\n{"-"*40}\n'
+
+    def __init__(self, planet_count=5):
+        self.planets = [Planet() for _ in range(planet_count)]
+
+    def __str__(self):
+        return self.delimiter.join(
+            str(planet) for planet in self.planets
+        )
 
 
 def parse_args():
@@ -191,13 +217,11 @@ def parse_args():
     return planet_count
 
 
-def main(planet_count):
-    # TODO: make should some planets have multiple "planets" inside of them?
-    for i in range(planet_count):
-        print('-----------------------------------------')
-        print(Planet())
-        print('-----------------------------------------')
+def main():
+    planet_count = parse_args()
+    solar_system = SolarSystem(planet_count)
+    print(solar_system)
 
 
 if __name__ == '__main__':
-    main(parse_args())
+    main()
