@@ -16,35 +16,38 @@ class PlanetAttribute(metaclass=ABCMeta):
     def __iter__(self):
         pass
 
+    def __len__(self):
+        return len(dict(self))
+
     def __str__(self):
-        return self.format_attributes(self)
+        return self.format_attributes(*dict(self).values())
 
     @classmethod
     def format_attributes(cls, *attributes, alignment=40, indent=0):
         output = []
         for attribute in attributes:
-            dict_attribute = dict(attribute)
-
             # Apply header and indentation if attribute has sub-items
-            if len(dict_attribute) > 1:
+            cur_alignment = alignment
+            cur_indent = indent
+            if len(attribute) > 1:
                 output.append(f'{"":<{indent}}{attribute.LABEL}')
-                alignment -= cls.INDENT
-                indent += cls.INDENT
+                cur_alignment -= cls.INDENT
+                cur_indent += cls.INDENT
 
-            string = cls._format_dict(dict_attribute, alignment, indent)
+            string = cls._format_attribute(attribute, cur_alignment, cur_indent)
             output.append(string)
 
         return '\n'.join(output)
 
     @classmethod
-    def _format_dict(cls, data, alignment, indent):
+    def _format_attribute(cls, attribute, alignment, indent):
         output = []
 
-        for k, v in data.items():
-            if isinstance(v, PlanetAttribute):
-                output.append(cls.format_attributes(v, alignment=alignment, indent=indent))
+        for field, value in attribute:
+            if isinstance(value, PlanetAttribute):
+                output.append(cls.format_attributes(value, alignment=alignment, indent=indent))
             else:
-                output.append(cls._format_field(k, v, alignment, indent))
+                output.append(cls._format_field(field, value, alignment, indent))
 
         return '\n'.join(output)
 
@@ -219,9 +222,9 @@ class PlanetPopulation(PlanetAttribute):
         if self.size is None:
             yield 'Population Size', '<20'
         else:
-           yield 'Size', self.size,
-           yield 'Economy', self.economy,
-           yield 'Conflict', self.conflict
+            yield 'Size', self.size,
+            yield 'Economy', self.economy,
+            yield 'Conflict', self.conflict
 
 
 class PlanetRawMaterials(PlanetAttribute):
