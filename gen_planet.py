@@ -1,8 +1,8 @@
+import math
 import random
 import sys
 from abc import abstractmethod, ABCMeta
 from majormode.utils.namegen import NameGeneratorFactory
-
 
 class PlanetAttribute(metaclass=ABCMeta):
     INDENT = 2
@@ -22,6 +22,8 @@ class PlanetAttribute(metaclass=ABCMeta):
 
     @classmethod
     def format_attributes(cls, *attributes, alignment=40, indent=0):
+        """Converts list of key value attributes to a human-readable string"""
+
         output = []
         for label, attribute in attributes:
             string = cls._format_attribute(label, attribute, alignment, indent)
@@ -49,8 +51,11 @@ class PlanetAttribute(metaclass=ABCMeta):
 
     @classmethod
     def _format_field(cls, label, value, alignment, indent):
-        return f'{"":<{indent}}{label + ":":<{alignment}}{value}'
+        return f'{"":<{indent}}{label+":":<{alignment}}{value}'
 
+    @staticmethod
+    def lower_random(min, max):
+        return math.floor(abs(random.random() - random.random()) * (1 + max - min) + min)
 
 class PlanetName(PlanetAttribute):
     """Planet name generator"""
@@ -129,7 +134,7 @@ class PlanetPlane(PlanetAttribute):
 
     def __init__(self):
         # Two random planes: one primary, and one secondary
-        planes = random.choices(self.PLANES, k=2)
+        planes = random.sample(self.PLANES, 2)
 
         self.plane = planes[0]
 
@@ -145,10 +150,10 @@ class PlanetPlane(PlanetAttribute):
 
     def __iter__(self):
         if self.blight is not None:
-            yield 'Primarily', self.plane,
-            yield 'Blight Frequency', self.blight_frequency,
-            yield 'Blight Form', self.blight_type,
-            yield 'Blight', self.blight,
+            yield 'Primarily', self.plane
+            yield 'Blight Frequency', self.blight_frequency
+            yield 'Blight Form', self.blight_type
+            yield 'Blight', self.blight
         else:
             yield 'Plane', self.plane
 
@@ -207,6 +212,7 @@ class PlanetPopulation(PlanetAttribute):
         self.economy = None
         self.conflict = None
         self.size = None
+        self.races = None
 
         if random.randint(1, 10) <= 3:
             self.size = random.choice(self.POPULATION_SIZES)
@@ -217,8 +223,8 @@ class PlanetPopulation(PlanetAttribute):
         if self.size is None:
             yield 'Population Size', '<20'
         else:
-            yield 'Size', self.size,
-            yield 'Economy', self.economy,
+            yield 'Size', self.size
+            yield 'Economy', self.economy
             yield 'Conflict', self.conflict
 
 
@@ -260,11 +266,13 @@ class Planet(PlanetAttribute):
         self.raw_materials = PlanetRawMaterials()
 
     def __iter__(self):
-        yield 'Name', self.name,
-        yield 'Size', self.size,
-        yield 'Plane', self.plane,
-        yield 'Population', self.population,
-        yield 'Raw Materials', self.raw_materials,
+        yield 'Name', self.name
+        yield 'Size', self.size
+        yield 'Plane', self.plane
+        yield 'Population', self.population
+
+        if self.raw_materials.raw_materials is not None:
+            yield 'Raw Materials', self.raw_materials
 
 
 class SolarSystem:
