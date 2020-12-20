@@ -53,10 +53,6 @@ class PlanetAttribute(metaclass=ABCMeta):
     def _format_field(cls, label, value, alignment, indent):
         return f'{"":<{indent}}{label+":":<{alignment}}{value}'
 
-    @staticmethod
-    def lower_random(min, max):
-        return math.floor(abs(random.random() - random.random()) * (1 + max - min) + min)
-
 class PlanetName(PlanetAttribute):
     """Planet name generator"""
 
