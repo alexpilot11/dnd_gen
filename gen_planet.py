@@ -9,11 +9,7 @@ class PlanetAttribute(metaclass=ABCMeta):
     OUTER_DELIMITER = '\n'
     INNER_DELIMITER = '\n'
 
-    @property
-    @abstractmethod
-    def LABEL(self):
-        pass
-
+    # Extracts planet properties from derived classes
     @abstractmethod
     def __iter__(self):
         pass
@@ -22,30 +18,30 @@ class PlanetAttribute(metaclass=ABCMeta):
         return len(dict(self))
 
     def __str__(self):
-        return self.format_attributes(*dict(self).values())
+        return self.format_attributes(*dict(self).items())
 
     @classmethod
     def format_attributes(cls, *attributes, alignment=40, indent=0):
         output = []
-        for attribute in attributes:
-            string = cls._format_attribute(attribute, alignment, indent)
+        for label, attribute in attributes:
+            string = cls._format_attribute(label, attribute, alignment, indent)
             output.append(string)
 
         return cls.OUTER_DELIMITER.join(output)
 
     @classmethod
-    def _format_attribute(cls, attribute, alignment, indent):
+    def _format_attribute(cls, label, attribute, alignment, indent):
         output = []
 
         # Apply header and indentation if attribute has sub-items
         if len(attribute) > 1:
-            output.append(f'{"":<{indent}}{attribute.LABEL}')
+            output.append(f'{"":<{indent}}{label}')
             alignment -= cls.INDENT
             indent += cls.INDENT
 
         for field, value in attribute:
             if isinstance(value, PlanetAttribute):
-                output.append(cls.format_attributes(value, alignment=alignment, indent=indent))
+                output.append(cls.format_attributes((field, value), alignment=alignment, indent=indent))
             else:
                 output.append(cls._format_field(field, value, alignment, indent))
 
@@ -58,8 +54,6 @@ class PlanetAttribute(metaclass=ABCMeta):
 
 class PlanetName(PlanetAttribute):
     """Planet name generator"""
-
-    LABEL = 'Name'
 
     _generate = NameGeneratorFactory.get_instance(NameGeneratorFactory.Language.Greek).generate_name
     max_length = 3
@@ -74,8 +68,6 @@ class PlanetName(PlanetAttribute):
 
 class PlanetSize(PlanetAttribute):
     """Planet size generator"""
-
-    LABEL = 'Size'
 
     # TODO: make different percentages for planet sizes
     PLANET_SIZES = (
@@ -95,8 +87,6 @@ class PlanetSize(PlanetAttribute):
 
 class PlanetPlane(PlanetAttribute):
     """Planet (dnd dimensional) plane generator"""
-
-    LABEL = 'Plane'
 
     PLANES = (
         'Material',
@@ -120,15 +110,18 @@ class PlanetPlane(PlanetAttribute):
         'Ysgard',
     )
     BLIGHT_FREQUENCIES = (
-        'Very Few',
+        'Single Instance',
+        'Uncommon',
         'Common',
-        'Frequent',
-        'Taking Over'
+        'Always Nearby'
+        'Unavoidable',
     )
     BLIGHT_TYPES = (
         'Spots',
-        'Stripes',
         'Gashes',
+        'Mountains',
+        'Valleys',
+        'Floating Formations',
         'Giant Oases',
         'Planetary Ring',
         'Subterranean',
@@ -141,7 +134,7 @@ class PlanetPlane(PlanetAttribute):
         self.plane = planes[0]
 
         # Chance that the plane contains traces of another one
-        if random.randint(1, 5) > 0:
+        if random.randint(1, 5) > 4:
             self.blight = planes[1]
             self.blight_type = random.choice(self.BLIGHT_TYPES)
             self.blight_frequency = random.choice(self.BLIGHT_FREQUENCIES)
@@ -154,7 +147,7 @@ class PlanetPlane(PlanetAttribute):
         if self.blight is not None:
             yield 'Primarily', self.plane,
             yield 'Blight Frequency', self.blight_frequency,
-            yield 'Blight Presence', self.blight_type,
+            yield 'Blight Form', self.blight_type,
             yield 'Blight', self.blight,
         else:
             yield 'Plane', self.plane
@@ -162,8 +155,6 @@ class PlanetPlane(PlanetAttribute):
 
 class PlanetEconomy(PlanetAttribute):
     """Planet economy generator"""
-
-    LABEL = 'Economy'
 
     ECONOMIES = (
         'Raw materials',
@@ -181,8 +172,6 @@ class PlanetEconomy(PlanetAttribute):
 
 class PlanetConflict(PlanetAttribute):
     """Planet conflict generator"""
-
-    LABEL = 'Conflict'
 
     CONFLICT_TYPES = (
         'War',
@@ -204,8 +193,6 @@ class PlanetConflict(PlanetAttribute):
 
 class PlanetPopulation(PlanetAttribute):
     """Planet population generator"""
-
-    LABEL = 'Population'
 
     # TODO: make different percentages for population sizes
     POPULATION_SIZES = (
@@ -238,8 +225,6 @@ class PlanetPopulation(PlanetAttribute):
 class PlanetRawMaterials(PlanetAttribute):
     """Planet resources generator"""
 
-    LABEL = 'Raw Materials'
-
     RAW_MATERIALS = (
         'Precious metal ore',
         'Precious gems',
@@ -264,8 +249,6 @@ class PlanetRawMaterials(PlanetAttribute):
 
 class Planet(PlanetAttribute):
     """Collection of planet attributes"""
-
-    LABEL = 'Planet'
 
     def __init__(self):
         # TODO: make should some planets have multiple "planets" inside of them?
