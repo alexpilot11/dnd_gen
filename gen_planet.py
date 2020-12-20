@@ -5,7 +5,9 @@ from majormode.utils.namegen import NameGeneratorFactory
 
 
 class PlanetAttribute(metaclass=ABCMeta):
-    INDENT = 4
+    INDENT = 2
+    OUTER_DELIMITER = '\n'
+    INNER_DELIMITER = '\n'
 
     @property
     @abstractmethod
@@ -26,22 +28,20 @@ class PlanetAttribute(metaclass=ABCMeta):
     def format_attributes(cls, *attributes, alignment=40, indent=0):
         output = []
         for attribute in attributes:
-            # Apply header and indentation if attribute has sub-items
-            cur_alignment = alignment
-            cur_indent = indent
-            if len(attribute) > 1:
-                output.append(f'{"":<{indent}}{attribute.LABEL}')
-                cur_alignment -= cls.INDENT
-                cur_indent += cls.INDENT
-
-            string = cls._format_attribute(attribute, cur_alignment, cur_indent)
+            string = cls._format_attribute(attribute, alignment, indent)
             output.append(string)
 
-        return '\n'.join(output)
+        return cls.OUTER_DELIMITER.join(output)
 
     @classmethod
     def _format_attribute(cls, attribute, alignment, indent):
         output = []
+
+        # Apply header and indentation if attribute has sub-items
+        if len(attribute) > 1:
+            output.append(f'{"":<{indent}}{attribute.LABEL}')
+            alignment -= cls.INDENT
+            indent += cls.INDENT
 
         for field, value in attribute:
             if isinstance(value, PlanetAttribute):
@@ -49,7 +49,7 @@ class PlanetAttribute(metaclass=ABCMeta):
             else:
                 output.append(cls._format_field(field, value, alignment, indent))
 
-        return '\n'.join(output)
+        return cls.INNER_DELIMITER.join(output)
 
     @classmethod
     def _format_field(cls, label, value, alignment, indent):
@@ -119,13 +119,17 @@ class PlanetPlane(PlanetAttribute):
         'Arborea',
         'Ysgard',
     )
+    BLIGHT_FREQUENCIES = (
+        'Very Few',
+        'Common',
+        'Frequent',
+        'Taking Over'
+    )
     BLIGHT_TYPES = (
-        'Small Spots',
-        'Striped',
-        'Overtaking',
-        'Half of planet',
-        'Frequent Scars',
-        'Giant Oasis',
+        'Spots',
+        'Stripes',
+        'Gashes',
+        'Giant Oases',
         'Planetary Ring',
         'Subterranean',
     )
@@ -135,17 +139,21 @@ class PlanetPlane(PlanetAttribute):
         planes = random.choices(self.PLANES, k=2)
 
         self.plane = planes[0]
-        self.blight = None
-        self.blight_type = None
 
         # Chance that the plane contains traces of another one
-        if random.randint(1, 5) > 4:
+        if random.randint(1, 5) > 0:
             self.blight = planes[1]
             self.blight_type = random.choice(self.BLIGHT_TYPES)
+            self.blight_frequency = random.choice(self.BLIGHT_FREQUENCIES)
+        else:
+            self.blight = None
+            self.blight_type = None
+            self.blight_frequency = None
 
     def __iter__(self):
         if self.blight is not None:
-            yield 'Main Plane', self.plane,
+            yield 'Primarily', self.plane,
+            yield 'Blight Frequency', self.blight_frequency,
             yield 'Blight Presence', self.blight_type,
             yield 'Blight', self.blight,
         else:
@@ -279,13 +287,13 @@ class Planet(PlanetAttribute):
 class SolarSystem:
     """Collection of planets"""
 
-    delimiter = f'\n{"-"*60}\n'
+    DELIMITER = f'\n{"-"*80}\n'
 
     def __init__(self, planet_count=5):
         self.planets = [Planet() for _ in range(planet_count)]
 
     def __str__(self):
-        return self.delimiter.join(
+        return self.DELIMITER.join(
             str(planet) for planet in self.planets
         )
 
