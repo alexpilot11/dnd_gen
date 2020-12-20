@@ -5,6 +5,8 @@ from majormode.utils.namegen import NameGeneratorFactory
 
 
 class PlanetAttribute(metaclass=ABCMeta):
+    """Planet info base/helper class"""
+
     INDENT = 2
     ALIGNMENT = 40
     OUTER_DELIMITER = '\n'
@@ -41,7 +43,7 @@ class PlanetAttribute(metaclass=ABCMeta):
 
     @classmethod
     def _format_attribute(cls, label, attribute, alignment, indent):
-        """Returns an attribute as a human-readable string"""
+        """Returns attribute as human-readable string"""
 
         output = []
         if len(attribute) == 1:
@@ -57,7 +59,7 @@ class PlanetAttribute(metaclass=ABCMeta):
 
     @classmethod
     def _format_list(cls, label, items, alignment, indent):
-        """Returns a list as a human-readable string"""
+        """Returns items as human-readable string"""
 
         output = []
         if len(items) == 1:
