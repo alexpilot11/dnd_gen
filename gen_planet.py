@@ -1,11 +1,12 @@
-import math
 import random
 import sys
 from abc import abstractmethod, ABCMeta
 from majormode.utils.namegen import NameGeneratorFactory
 
+
 class PlanetAttribute(metaclass=ABCMeta):
     INDENT = 2
+    ALIGNMENT = 40
     OUTER_DELIMITER = '\n'
     INNER_DELIMITER = '\n'
 
@@ -18,40 +19,68 @@ class PlanetAttribute(metaclass=ABCMeta):
         return len(dict(self))
 
     def __str__(self):
-        return self.format_attributes(*dict(self).items())
+        output = []
+        for field, value in self:
+            output.append(self._format_content(field, value))
+
+        return self.OUTER_DELIMITER.join(output)
 
     @classmethod
-    def format_attributes(cls, *attributes, alignment=40, indent=0):
-        """Converts list of key value attributes to a human-readable string"""
+    def _format_content(cls, label, content, alignment=None, indent=0, separator=':'):
+        """Returns content as human-readable string"""
 
-        output = []
-        for label, attribute in attributes:
-            string = cls._format_attribute(label, attribute, alignment, indent)
-            output.append(string)
+        if alignment is None:
+            alignment = cls.ALIGNMENT
 
-        return cls.OUTER_DELIMITER.join(output)
+        if isinstance(content, PlanetAttribute):
+            return cls._format_attribute(label, content, alignment, indent)
+        elif isinstance(content, list):
+            return cls._format_list(label, content, alignment, indent)
+        else:
+            return cls._format_field(label, content, alignment, indent, separator)
 
     @classmethod
     def _format_attribute(cls, label, attribute, alignment, indent):
+        """Returns an attribute as a human-readable string"""
+
         output = []
-
-        # Apply header and indentation if attribute has sub-items
-        if len(attribute) > 1:
-            output.append(f'{"":<{indent}}{label}')
-            alignment -= cls.INDENT
-            indent += cls.INDENT
-
-        for field, value in attribute:
-            if isinstance(value, PlanetAttribute):
-                output.append(cls.format_attributes((field, value), alignment=alignment, indent=indent))
-            else:
-                output.append(cls._format_field(field, value, alignment, indent))
+        if len(attribute) == 1:
+            dict_attribute = dict(attribute)
+            label, item = list(dict_attribute.items())[0]
+            output.append(cls._format_content(label, item, alignment, indent))
+        elif len(attribute) > 1:
+            output.append(cls._format_header(f'{label}', indent))
+            for sub_label, item in attribute:
+                output.append(cls._format_content(sub_label, item, alignment-cls.INDENT, indent+cls.INDENT))
 
         return cls.INNER_DELIMITER.join(output)
 
     @classmethod
-    def _format_field(cls, label, value, alignment, indent):
-        return f'{"":<{indent}}{label+":":<{alignment}}{value}'
+    def _format_list(cls, label, items, alignment, indent):
+        """Returns a list as a human-readable string"""
+
+        output = []
+        if len(items) == 1:
+            output.append(cls._format_content(label, items[0], alignment, indent))
+        elif len(items) > 1:
+            output.append(cls._format_header(f'{label}', indent))
+            for i in range(len(items)):
+                output.append(cls._format_content('', items[i], alignment-cls.INDENT, indent+cls.INDENT, ''))
+
+        return cls.INNER_DELIMITER.join(output)
+
+    @classmethod
+    def _format_header(cls, label, indent):
+        """Returns a properly-indented header"""
+
+        return f'{"":<{indent}}{label}'
+
+    @classmethod
+    def _format_field(cls, label, value, alignment, indent, separator=':'):
+        """Returns a properly indented field and value"""
+
+        return f'{"":<{indent}}{label+separator:<{alignment}}{value}'
+
 
 class PlanetName(PlanetAttribute):
     """Planet name generator"""
@@ -111,10 +140,9 @@ class PlanetPlane(PlanetAttribute):
         'Ysgard',
     )
     BLIGHT_FREQUENCIES = (
-        'Single Instance',
-        'Uncommon',
-        'Common',
-        'Always Nearby'
+        'A Few',
+        'Occasional',
+        'Frequent',
         'Unavoidable',
     )
     BLIGHT_TYPES = (
@@ -122,10 +150,10 @@ class PlanetPlane(PlanetAttribute):
         'Gashes',
         'Mountains',
         'Valleys',
-        'Floating Formations',
+        'Floating Structures',
         'Giant Oases',
-        'Planetary Ring',
-        'Subterranean',
+        'Satellites',
+        'Caves',
     )
 
     def __init__(self):
@@ -146,10 +174,8 @@ class PlanetPlane(PlanetAttribute):
 
     def __iter__(self):
         if self.blight is not None:
-            yield 'Primarily', self.plane
-            yield 'Blight Frequency', self.blight_frequency
-            yield 'Blight Form', self.blight_type
-            yield 'Blight', self.blight
+            yield 'Mainly', self.plane
+            yield 'Deviation', f'{self.blight_frequency} {self.blight_type} of {self.blight}'
         else:
             yield 'Plane', self.plane
 
@@ -205,15 +231,14 @@ class PlanetPopulation(PlanetAttribute):
     )
 
     def __init__(self):
-        self.economy = None
-        self.conflict = None
-        self.size = None
-        self.races = None
-
         if random.randint(1, 10) <= 3:
-            self.size = random.choice(self.POPULATION_SIZES)
             self.economy = PlanetEconomy()
+            self.size = random.choice(self.POPULATION_SIZES)
             self.conflict = PlanetConflict()
+        else:
+            self.economy = None
+            self.size = None
+            self.conflict = None
 
     def __iter__(self):
         if self.size is None:
