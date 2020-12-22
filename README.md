@@ -14,5 +14,5 @@ A library to generate planets for a space-based TTRPG hex-crawl campaign
 `python gen_planet`
 - defaults to 5 generated planets
 
-`python gen_planet/gen.py <num_planets:int>`
+`python gen_planet <num_planets:int>`
 - generates the number of planets specified
