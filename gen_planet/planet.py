@@ -12,27 +12,32 @@ class Planet:
         NameGeneratorFactory.Language.Greek
     ).generate_name
     OUTLINE = '-' * 40
+    PADDING = '<25'
+
 
     def __init__(self):
-      self.gen_plane()
-      self.gen_name()
-      self.gen_size()
-      self.gen_plane()
-      self.gen_population()
-      self.gen_conflict()
-      self.gen_raw_materials()
-      self.gen_economy()
+        self.gen_plane()
+        self.gen_name()
+        self.gen_size()
+        self.gen_plane()
+        self.gen_population()
+        self.gen_conflict()
+        self.gen_raw_materials()
+        self.gen_economy()
+
+    def print_attr(self, attr, value):
+        print(f'{f"{attr}:":{self.PADDING}}{value}')
 
     def display(self):
         print(self.OUTLINE)
-        print(f'{"Plane:":<20}{self.plane.value}')
-        print(f'{"Name:":<20}{self.name}')
-        print(f'{"Size:":<20}{self.size.value}')
-        print(f'{"Plane:":<20}{self.plane.value}')
-        print(f'{"Population:":<20}{self.population.value}')
-        print(f'{"Conflict:":<20}{self.conflict.value}')
-        print(f'{"Raw Materials:":<20}{self.raw_materials.value}')
-        print(f'{"Economy:":<20}{self.economy.value}')
+        self.print_attr('Plane', self.plane.value)
+        self.print_attr('Name', self.name)
+        self.print_attr('Size', self.size.value)
+        self.print_attr('Plane', self.plane.value)
+        self.print_attr('Population', self.population.value)
+        self.print_attr('Conflict', self.conflict.value)
+        self.print_attr('Raw', self.raw_materials.value)
+        self.print_attr('Economy', self.economy.value)
         print(self.OUTLINE)
 
     def gen_name(self):
