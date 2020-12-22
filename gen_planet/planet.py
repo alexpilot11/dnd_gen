@@ -36,7 +36,7 @@ class Planet:
         self.print_attr('Plane', self.plane.value)
         self.print_attr('Population', self.population.value)
         self.print_attr('Conflict', self.conflict.value)
-        self.print_attr('Raw', self.raw_materials.value)
+        self.print_attr('Raw Materials', self.raw_materials.value)
         self.print_attr('Economy', self.economy.value)
         print(self.OUTLINE)
 
