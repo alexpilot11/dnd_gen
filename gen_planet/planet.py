@@ -43,6 +43,8 @@ class Planet:
     def gen_name(self):
         word_count = random.choice([1]*3 + [2])  # Shorter names have higher weights
         self.name = ' '.join([self._generate() for _ in range(word_count)])
+        if random.randint(0, 10) > 8:
+            self.name += f' {random.choice(["I", "II", "III", "IV", "V"])}'
 
     def gen_size(self):
         self.size = random.choice(list(enums.Size))
