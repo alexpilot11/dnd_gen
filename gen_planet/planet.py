@@ -39,7 +39,6 @@ class Planet:
         self.name = ' '.join([self._generate() for _ in range(word_count)])
 
     def gen_size(self):
-        # TODO: make different percentages for planet sizes
         self.size = random.choice(list(enums.Size))
 
     def gen_plane(self):
@@ -47,7 +46,6 @@ class Planet:
 
 
     def gen_population(self):
-        # TODO: conditionals
         self.population = random.choice(list(enums.Population))
 
 
