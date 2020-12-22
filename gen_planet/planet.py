@@ -45,14 +45,11 @@ class Planet:
     def gen_plane(self):
         self.plane = random.choice(list(enums.Plane))
 
-
     def gen_population(self):
         self.population = random.choice(list(enums.Population))
 
-
     def gen_conflict(self):
         self.conflict = random.choice(list(enums.Conflict) + [enums.Conflict.NONE] * 5)
-
 
     def gen_raw_materials(self):
         self.raw_materials = random.choice(
