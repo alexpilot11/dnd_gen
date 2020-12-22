@@ -11,6 +11,7 @@ class Planet:
     _generate = NameGeneratorFactory.get_instance(
         NameGeneratorFactory.Language.Greek
     ).generate_name
+    OUTLINE = '-' * 40
 
     def __init__(self):
       self.gen_plane()
@@ -23,7 +24,7 @@ class Planet:
       self.gen_economy()
 
     def display(self):
-        print('-----------------------------------------')
+        print(self.OUTLINE)
         print(f'{"Plane:":<20}{self.plane.value}')
         print(f'{"Name:":<20}{self.name}')
         print(f'{"Size:":<20}{self.size.value}')
@@ -32,7 +33,7 @@ class Planet:
         print(f'{"Conflict:":<20}{self.conflict.value}')
         print(f'{"Raw Materials:":<20}{self.raw_materials.value}')
         print(f'{"Economy:":<20}{self.economy.value}')
-        print('-----------------------------------------')
+        print(self.OUTLINE)
 
     def gen_name(self):
         word_count = random.choice([1]*3 + [2])  # Shorter names have higher weights
