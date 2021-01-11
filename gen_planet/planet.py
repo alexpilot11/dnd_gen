@@ -1,29 +1,20 @@
 import random
-import requests
 
 from majormode.utils.namegen import NameGeneratorFactory
 
-from gen_planet import enums
+from gen_planet import enums, moon
+from gen_planet.entity import Entity
 
 
-class Planet:
-
-    _generate = NameGeneratorFactory.get_instance(
-        NameGeneratorFactory.Language.Greek
-    ).generate_name
-    OUTLINE = '-' * 40
-    PADDING = '<25'
-
-
+class Planet(Entity):
     def __init__(self):
+        super().__init__()
         self.gen_name()
         self.gen_plane()
         self.gen_size()
         self.gen_raw_materials()
         self.gen_population()
-
-    def print_attr(self, attr, value):
-        print(f'{f"{attr}:":{self.PADDING}}{value}')
+        self.gen_moons()
 
     def display(self):
         print(self.OUTLINE)
@@ -34,13 +25,8 @@ class Planet:
         self.print_attr('Population', self.population.value)
         self.print_attr('Conflict', self.conflict.value)
         self.print_attr('Economy', self.economy.value)
+        self.moons.display()
         print(self.OUTLINE)
-
-    def gen_name(self):
-        word_count = random.choice([1]*3 + [2])  # Shorter names have higher weights
-        self.name = ' '.join([self._generate() for _ in range(word_count)])
-        if random.randint(0, 10) > 8:
-            self.name += f' {random.choice(["I", "II", "III", "IV", "V"])}'
 
     def gen_plane(self):
         self.plane = random.choice(list(enums.Plane))
@@ -71,3 +57,6 @@ class Planet:
         if self.raw_materials is None:
             choices.remove(enums.Economy.RAW_MATERIALS)
         self.economy = random.choice(choices)
+
+    def gen_moons(self):
+        self.moons = moon.MoonSet()

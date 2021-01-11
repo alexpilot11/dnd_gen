@@ -1,5 +1,4 @@
 import random
-import requests
 import sys
 
 from gen_planet.planet import Planet
