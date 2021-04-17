@@ -20,6 +20,10 @@ class Entity(BaseEntity):
 
     def __init__(self):
         self.gen_name()
+        self.gen_plane()
+        self.gen_raw_materials()
+        if self.is_colonized:
+            self.gen_population()
         self.gen_size()
         self.gen_density()
         self.calc_gravity()
@@ -27,6 +31,17 @@ class Entity(BaseEntity):
     @property
     def generate(self):
         return NameGeneratorFactory.get_instance(self.language).generate_name
+
+    def display(self):
+        self.print_attr('Name', self.name)
+        self.print_attr('Plane', self.plane.value)
+        self.print_attr('Size', self.size.value)
+        self.print_attr('Density', self.density.value)
+        self.print_attr('Gravity', self.gravity.value)
+        self.print_attr('Raw Materials', self.raw_materials.value)
+        self.print_attr('Population', self.population.value)
+        self.print_attr('Conflict', self.conflict.value)
+        self.print_attr('Economy', self.economy.value)
 
     def print_attr(self, attr, value):
         print(f'{"":{self.left_padding}}{f"{attr}:":{self.PADDING}}{value}')
@@ -76,3 +91,30 @@ class Entity(BaseEntity):
             self.gravity = enums.Gravity.HEAVY
         elif score <= 45:
             self.gravity = enums.Gravity.VERY_HEAVY
+
+    def gen_plane(self):
+        self.plane = random.choice(list(enums.Plane))
+
+    def gen_raw_materials(self):
+        self.raw_materials = random.choice(
+            list(enums.RawMaterials) + [enums.RawMaterials.NONE] * 2
+        )
+
+    def gen_population(self):
+        choices = list(enums.Population)
+        if self.size != enums.Size.GIANT:
+            choices.remove(enums.Population.GIANT)
+
+        self.population = random.choice(choices)
+        if self.population.value is not None:
+            self.gen_conflict()
+            self.gen_economy()
+
+    def gen_conflict(self):
+        self.conflict = random.choice(list(enums.Conflict) + [enums.Conflict.NONE] * 5)
+
+    def gen_economy(self):
+        choices = list(enums.Economy) + [enums.Economy.NONE]
+        if self.raw_materials is None:
+            choices.remove(enums.Economy.RAW_MATERIALS)
+        self.economy = random.choice(choices)

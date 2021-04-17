@@ -9,13 +9,6 @@ class Moon(entity.Entity):
     language = NameGeneratorFactory.Language.Roman
     left_padding = '<4'
 
-    def display(self):
-        self.print_attr('Name', self.name)
-        self.print_attr('Size', self.size.value)
-        self.print_attr('Density', self.density.value)
-        self.print_attr('Gravity', self.gravity.value)
-
-
 
 class MoonSet(entity.BaseEntity):
     def __init__(self):
