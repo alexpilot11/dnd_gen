@@ -38,12 +38,27 @@ class Size(BaseEnum):
     GIANT = 'Giant'
 
 
+class Density(BaseEnum):
+    LOW = 'Low'
+    MEDIUM = 'Medium'
+    HIGH = 'High'
+
+
+class Gravity(BaseEnum):
+    VERY_LIGHT = 'Very Light'
+    LIGHT = 'Light'
+    MEDIUM = 'Medium'
+    HEAVY = 'Heavy'
+    VERY_HEAVY = 'Very Heavy'
+
+
 class Population(BaseEnum):
     SMALL = 'Small'
     MEDIUM = 'Medium'
     LARGE = 'Large'
     HUGE = 'Huge'
     GIANT = 'Giant'
+    NONE = None
 
 
 class Conflict(BaseEnum):
