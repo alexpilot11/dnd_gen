@@ -13,7 +13,8 @@ class Planet(Entity):
         self.gen_plane()
         self.gen_size()
         self.gen_raw_materials()
-        self.gen_population()
+        if self.is_colonized:
+            self.gen_population()
         self.gen_moons()
 
     def display(self):
@@ -21,6 +22,8 @@ class Planet(Entity):
         self.print_attr('Name', self.name)
         self.print_attr('Plane', self.plane.value)
         self.print_attr('Size', self.size.value)
+        self.print_attr('Density', self.density.value)
+        self.print_attr('Gravity', self.gravity.value)
         self.print_attr('Raw Materials', self.raw_materials.value)
         self.print_attr('Population', self.population.value)
         self.print_attr('Conflict', self.conflict.value)
@@ -30,9 +33,6 @@ class Planet(Entity):
 
     def gen_plane(self):
         self.plane = random.choice(list(enums.Plane))
-
-    def gen_size(self):
-        self.size = random.choice(list(enums.Size))
 
     def gen_raw_materials(self):
         self.raw_materials = random.choice(

@@ -7,10 +7,14 @@ from gen_planet import entity
 
 class Moon(entity.Entity):
     language = NameGeneratorFactory.Language.Roman
-    left_padding = 4
+    left_padding = '<4'
 
     def display(self):
-        self.print_attr(f'{"":{self.left_padding}}Name', self.name)
+        self.print_attr('Name', self.name)
+        self.print_attr('Size', self.size.value)
+        self.print_attr('Density', self.density.value)
+        self.print_attr('Gravity', self.gravity.value)
+
 
 
 class MoonSet(entity.BaseEntity):
