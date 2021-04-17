@@ -21,12 +21,11 @@ class Entity(BaseEntity):
     def __init__(self):
         self.gen_name()
         self.gen_plane()
-        self.gen_raw_materials()
-        if self.is_colonized:
-            self.gen_population()
         self.gen_size()
         self.gen_density()
         self.calc_gravity()
+        self.gen_raw_materials()
+        self.gen_population()
 
     @property
     def generate(self):
