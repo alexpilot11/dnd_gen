@@ -1,35 +1,68 @@
 import random
 
+import roman
 from majormode.utils.namegen import NameGeneratorFactory
 
 from gen_planet import enums
+from gen_planet.mixins import ParentMixin
 
 
-class BaseEntity:
+class BaseEntity(ParentMixin):
     OUTLINE = '-' * 40
     PADDING = '<25'
-
-
-class Entity(BaseEntity):
-    language = NameGeneratorFactory.Language.Greek
     left_padding = '<0'
+    language = NameGeneratorFactory.Language.Greek
+
+    def __init__(self, num_children=None):
+        self.num_children = num_children
+        can_name_children_after_parent = (
+            hasattr(self, 'parent') and not
+            self.parent.children_named_after_parent
+        ) or not hasattr(self, 'parent')
+        self.children_named_after_parent = random.choice([can_name_children_after_parent, False])
+        self.gen_name()
+
+    @property
+    def generate(self):
+        return NameGeneratorFactory.get_instance(self.language).generate_name
+
+    def gen_name(self):
+        word_count = random.choice([1]*3 + [2])  # Shorter names have higher weights
+        self.name = ' '.join([self.generate() for _ in range(word_count)])
+
+    def print_attr(self, attr, value):
+        print(f'{"":{self.left_padding}}{f"{attr}:":{self.PADDING}}{value}')
+
+
+class BaseChildEntity(BaseEntity):
+    left_padding = '<4'
+
+    def __init__(self, parent, num_children=None):
+        self.parent = parent
+        super().__init__(num_children=num_children)
+
+    def gen_name(self):
+        if self.parent.children_named_after_parent:
+            self.name = f'{self.parent.name} {roman.toRoman(self.parent.num_child)}'
+            self.parent.num_child += 1
+        else:
+            super().gen_name()
+
+
+class Entity(BaseChildEntity):
     is_colonized = False
     population = enums.Population.NONE
     conflict = enums.Conflict.NONE
     economy = enums.Economy.NONE
 
-    def __init__(self):
-        self.gen_name()
+    def __init__(self, parent, num_children=None):
+        super().__init__(parent, num_children=num_children)
         self.gen_plane()
         self.gen_size()
         self.gen_density()
         self.calc_gravity()
         self.gen_raw_materials()
         self.gen_population()
-
-    @property
-    def generate(self):
-        return NameGeneratorFactory.get_instance(self.language).generate_name
 
     def display(self):
         self.print_attr('Name', self.name)
@@ -41,15 +74,6 @@ class Entity(BaseEntity):
         self.print_attr('Population', self.population.value)
         self.print_attr('Conflict', self.conflict.value)
         self.print_attr('Economy', self.economy.value)
-
-    def print_attr(self, attr, value):
-        print(f'{"":{self.left_padding}}{f"{attr}:":{self.PADDING}}{value}')
-
-    def gen_name(self):
-        word_count = random.choice([1]*3 + [2])  # Shorter names have higher weights
-        self.name = ' '.join([self.generate() for _ in range(word_count)])
-        if random.randint(0, 10) > 8:
-            self.name += f' {random.choice(["I", "II", "III", "IV", "V"])}'
 
     def gen_size(self):
         self.size = random.choice(list(enums.Size))
